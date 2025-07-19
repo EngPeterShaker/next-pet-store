@@ -1,22 +1,24 @@
 import axios from "axios";
 
 export const axiosInstance = axios.create({
-	baseURL: "https://petstore.swagger.io",
+	baseURL: "https://petstore.swagger.io/v2",
 	headers: {
 		"Content-Type": "application/json",
 	},
 });
 
 axiosInstance.interceptors.request.use(
-	(config) => {
-		const token = localStorage.getItem("authToken"); 
+	config => {
+	  if (typeof window !== 'undefined') {
+		const token = localStorage.getItem('token');
 		if (token) {
-			config.headers.Authorization = `Bearer ${token}`;
+		  config.headers['Authorization'] = `Bearer ${token}`;
 		}
-		return config;
+	  }
+	  return config;
 	},
-	(error) => Promise.reject(error)
-);
+	error => Promise.reject(error)
+  );
 
 // Response interceptor: Handle global errors (e.g., 401 Unauthorized)
 axiosInstance.interceptors.response.use(
