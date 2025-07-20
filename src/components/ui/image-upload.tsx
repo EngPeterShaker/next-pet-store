@@ -1,6 +1,7 @@
 import { UploadCloud } from "lucide-react";
 import { Button } from "./button";
 import { useState } from "react";
+import { validateImageUrl } from '@/lib/utils/image';
 
 interface ImageUploadProps {
   value: string[];
@@ -17,29 +18,7 @@ export function ImageUpload({
 }: ImageUploadProps) {
   const [imageErrors, setImageErrors] = useState<{[key: number]: boolean}>({});
   
-  const validateImageUrl = (url: string): boolean => {
-    try {
-      // Skip empty or whitespace-only URLs
-      if (!url || url.trim().length === 0) {
-        return false;
-      }
-      
-      // Check if URL is relative (Next.js static files)
-      if (url.startsWith('/')) {
-        return true;
-      }
-      
-      // Check if URL is absolute and has valid protocol
-      if (url.startsWith('http://') || url.startsWith('https://')) {
-        new URL(url);
-        return true;
-      }
-      
-      return false;
-    } catch {
-      return false;
-    }
-  };
+  
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {

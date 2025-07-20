@@ -57,12 +57,14 @@ export default function PetList({
         </div>
       )}
 
-      {pets && (
+      {Array.isArray(pets) && pets.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {pets.map((pet, index) => (
-            <PetCard key={`${pet.id}-${index}`} pet={pet} />
+            <PetCard key={`${pet.id}-${index}`} pet={pet} priority={index === 0} />
           ))}
         </div>
+      ) : (
+        <div className="text-gray-500 p-4">No pets available</div>
       )}
     </div>
   );
