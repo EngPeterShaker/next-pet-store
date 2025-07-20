@@ -5,8 +5,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 
 export default function HomePage() {
   return (
-    <div className="container relative py-8 lg:py-12">
-      <div className="mx-auto flex max-w-[980px] flex-col items-center gap-4 text-center">
+    <div className="container relative px-8 lg:px-12 mx-auto ">
+      <div className="flex max-w-[980px] flex-col items-center gap-4 text-center">
         <h1 className="text-3xl font-bold leading-tight tracking-tighter sm:text-3xl md:text-5xl lg:text-6xl">
           Welcome to PetStore
         </h1>
