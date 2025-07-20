@@ -19,7 +19,7 @@ export default function PetList({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [status, setStatus] = useState<PetStatus | undefined>(initialStatus);
+  const [status, setStatus] = useState<PetStatus | undefined>(initialStatus as PetStatus | undefined);
   const [name, setName] = useState(initialName || '');
 
   const { data: pets, isLoading, error } = usePets({
