@@ -1,4 +1,4 @@
-import { LucideIcon, ArrowRight, PawPrint, Search, Edit } from 'lucide-react'
+import { ArrowRight, PawPrint, Search, Edit } from 'lucide-react'
 
 export const Icons = {
   arrowRight: ArrowRight,

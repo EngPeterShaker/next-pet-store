@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import './container.css';
 import { Providers } from './providers';
 import AuthGuard from './AuthGuard';
 import { MainLayout } from '@/components/MainLayout';
