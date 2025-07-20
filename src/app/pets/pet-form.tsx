@@ -6,6 +6,7 @@ import { z } from "zod";
 import { useUpdatePet, useUploadPetImage } from "@/lib/hooks/use-pets";
 import { useToast } from "@/components/ui/use-toast";
 import { Pet } from "@/types/pet";
+import { PetStatus } from "@/types/pet";
 import {
   Form,
   FormControl,
@@ -23,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+// import { Textarea } from "@/components/ui/textarea";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { Loader2 } from "lucide-react";
 
@@ -31,9 +32,10 @@ import { Loader2 } from "lucide-react";
 const petFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   category: z.object({
+    id: z.number().optional(), // Make id optional for form input
     name: z.string().min(1, "Category name is required"),
   }),
-  status: z.enum(["available", "pending", "sold"]),
+  status: z.nativeEnum(PetStatus),
   tags: z.array(
     z.object({
       name: z.string().min(1, "Tag name is required"),
@@ -82,6 +84,8 @@ export function PetForm({ pet, onSuccess }: PetFormProps) {
       );
       return response;
     } catch (error) {
+      // Log error for debugging
+      console.error('Image upload failed:', error);
       toast({
         title: "Error",
         description: "Failed to upload image",
@@ -104,7 +108,9 @@ export function PetForm({ pet, onSuccess }: PetFormProps) {
           });
           onSuccess?.();
         },
-        onError: () => {
+        onError: (error) => {
+          // Log error for debugging
+          console.error('Pet update failed:', error);
           toast({
             title: "Error",
             description: "Failed to update pet",

@@ -8,7 +8,13 @@ import { Pet } from '@/types/pet';
 import { validateImageUrl } from '@/lib/utils/image';
 import { getPetStatusColor } from '@/lib/utils/pet';
 import { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Edit } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function PetDetails({ pet }: { pet: Pet }) {
   const [imageError, setImageError] = useState(false);
@@ -26,7 +32,7 @@ export default function PetDetails({ pet }: { pet: Pet }) {
   const imageUrl = getValidImageUrl();
   const showImage = imageUrl && !imageError;
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-4">
       <div className="mb-4">
         <Button asChild variant="link" className="p-2">
           <Badge variant="outline" className="capitalize">
@@ -52,9 +58,13 @@ export default function PetDetails({ pet }: { pet: Pet }) {
               }}
             />
           ) : (
-            <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-              <span className="text-gray-400">No image available</span>
-            </div>
+            <Image
+              src="/images/placeholder-image.png"
+              alt="Pet placeholder image"
+              width={500}
+              height={500}
+              className="rounded-lg max-h-[500px] object-contain"
+            />
           )}
         </div>
 
@@ -78,13 +88,28 @@ export default function PetDetails({ pet }: { pet: Pet }) {
               <h2 className="font-semibold">Tags</h2>
               <div className="flex flex-wrap gap-2">
                 {pet.tags.map(tag => (
-                  <Badge key={tag.id} variant="secondary">
-                    {tag.name}
-                  </Badge>
+                  <TooltipProvider key={tag.id}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge variant="secondary" className="max-w-[150px] truncate">
+                          {tag.name}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{tag.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 ))}
               </div>
             </div>
           )}
+          
+          <div className="pt-4">
+            <Button asChild>
+              <Link href={`/pets/${pet.id}/edit`}><Edit className="mr-2 h-4 w-4" />Edit Pet</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

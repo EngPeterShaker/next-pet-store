@@ -61,7 +61,7 @@ export function PetCard({ pet, priority = false }: { pet: Pet; priority?: boolea
         </Badge>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 flex flex-col flex-grow">
         <h3 className="font-semibold text-lg truncate" title={pet.name}>
           {pet.name}
         </h3>
@@ -94,7 +94,7 @@ export function PetCard({ pet, priority = false }: { pet: Pet; priority?: boolea
           )}
         </div>
 
-        <Button asChild className="w-full mt-4">
+        <Button asChild className="w-full mt-auto">
           <Link href={`/pets/${pet.id}`}>View Details</Link>
         </Button>
       </div>

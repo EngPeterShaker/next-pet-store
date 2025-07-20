@@ -43,7 +43,7 @@ const PetFilters = ({
 
       <Select
         value={status || ''}
-        onValueChange={onStatusChange}
+        onValueChange={(value) => onStatusChange(value as PetStatus | undefined)}
       >
         <SelectTrigger className="w-[200px]">
           <div className="flex items-center">
