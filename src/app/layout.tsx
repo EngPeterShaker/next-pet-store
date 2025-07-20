@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import AuthGuard from './AuthGuard';
-import LogoutButton from '@/components/LogoutButton';
+import { MainLayout } from '@/components/MainLayout';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,10 +22,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <AuthGuard>
-            <header className="flex justify-end p-4 border-b">
-              <LogoutButton />
-            </header>
-            {children}
+            <MainLayout>
+              {children}
+            </MainLayout>
           </AuthGuard>
         </Providers>
       </body>

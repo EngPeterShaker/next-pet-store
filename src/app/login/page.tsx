@@ -7,6 +7,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { LoginFormData, RegisterFormData, loginSchema, registerSchema } from '@/lib/validations/auth';
 import { FormInput } from '@/components/ui/form-input';
 import { axiosInstance } from '@/lib/axiosInstance';
+import { LogIn, UserPlus, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [error, setError] = useState('');
@@ -14,8 +16,8 @@ export default function LoginPage() {
   const [registerSuccess, setRegisterSuccess] = useState('');
   const router = useRouter();
 
-  const { 
-    register: loginRegister, 
+  const {
+    register: loginRegister,
     handleSubmit: handleLoginSubmit,
     formState: { errors: loginErrors }
   } = useForm<LoginFormData>({
@@ -66,15 +68,15 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col items-center justify-center p-24">
       <div className="w-full max-w-md">
         <h1 className="text-4xl font-bold mb-8 text-center">
-          {showRegister ? 'Create Account' : 'Login'}
+          {showRegister ? 'Create Account' : 'Welcome to LovePets'}
         </h1>
-        
+
         {registerSuccess && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
             {registerSuccess}
           </div>
         )}
-        
+
         {showRegister ? (
           <form onSubmit={handleRegisterSubmit(onRegister)} className="space-y-4">
             <FormInput
@@ -113,17 +115,19 @@ export default function LoginPage() {
               registration={registerRegister('phone')}
               error={registerErrors.phone?.message}
             />
-            <button 
-              type="submit" 
-              className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            <button
+              type="submit"
+              className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center"
             >
+              <UserPlus className="mr-2 h-4 w-4" />
               Create Account
             </button>
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => setShowRegister(false)}
-              className="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              className="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 flex items-center justify-center"
             >
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Login
             </button>
           </form>
@@ -141,22 +145,26 @@ export default function LoginPage() {
               registration={loginRegister('password')}
               error={loginErrors.password?.message}
             />
-            <button 
-              type="submit" 
-              className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              <button
+                type="submit"
+                className="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center"
             >
-              Login
+                <LogIn className="mr-2 h-4 w-4" />
+              Log in
             </button>
-            <button 
-              type="button" 
-              onClick={() => setShowRegister(true)}
-              className="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              Create Account
-            </button>
+              <p className="text-center text-sm text-gray-500">
+                New to LovePets?{" "}
+                <button
+                  onClick={() => setShowRegister(true)}
+                  className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  <UserPlus className="mr-1 h-4 w-4" />
+                  <span>Create Account</span>
+                </button>
+              </p>
           </form>
         )}
-        
+
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-4">
             {error}
