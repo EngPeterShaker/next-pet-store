@@ -44,10 +44,3 @@ export function useUpdatePet() {
 		},
 	});
 }
-
-export function useUploadPetImage() {
-	return useMutation({
-		mutationFn: ({ id, file }: { id: number; file: File }) =>
-			petstoreApi.uploadImage(id, file),
-	});
-}

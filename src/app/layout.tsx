@@ -5,6 +5,7 @@ import './container.css';
 import { Providers } from './providers';
 import AuthGuard from './AuthGuard';
 import { MainLayout } from '@/components/MainLayout';
+import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,6 +29,7 @@ export default function RootLayout({
             </MainLayout>
           </AuthGuard>
         </Providers>
+        <Toaster />
       </body>
     </html>
   );

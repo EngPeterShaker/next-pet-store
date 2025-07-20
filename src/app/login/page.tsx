@@ -8,7 +8,6 @@ import { LoginFormData, RegisterFormData, loginSchema, registerSchema } from '@/
 import { FormInput } from '@/components/ui/form-input';
 import { axiosInstance } from '@/lib/axiosInstance';
 import { LogIn, UserPlus, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
 
 export default function LoginPage() {
   const [error, setError] = useState('');
@@ -36,13 +35,14 @@ export default function LoginPage() {
   const onLogin = async (data: LoginFormData) => {
     setError('');
     try {
-      const response = await axiosInstance.get('/user/login', {
+      await axiosInstance.get('/user/login', {
         params: data
       });
       localStorage.setItem('token', 'demo-token');
       router.push('/');
-    } catch (err: any) {
-      setError('Login failed: ' + (err.response?.data?.message || err.message));
+    } catch (err: Error | unknown) {
+      const error = err as { response?: { data?: { message?: string } }, message?: string };
+      setError('Login failed: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -59,8 +59,9 @@ export default function LoginPage() {
       setRegisterSuccess('Account created! You can now log in.');
       setShowRegister(false);
       resetRegisterForm();
-    } catch (err: any) {
-      setError('Registration failed: ' + (err.response?.data?.message || err.message));
+    } catch (err: Error | unknown) {
+      const error = err as { response?: { data?: { message?: string } }, message?: string };
+      setError('Registration failed: ' + (error.response?.data?.message || error.message));
     }
   };
 

@@ -1,7 +1,6 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { usePet, useUpdatePet } from '@/lib/hooks/use-pets';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -9,13 +8,13 @@ import { Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import PetForm from '@/components/PetForm';
 import { Pet } from '@/types/pet';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function EditPetPage() {
   const params = useParams();
   const router = useRouter();
   const petId = Number(params.id);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<boolean>(false);
+  const { toast } = useToast();
 
 
   const { data: pet, isLoading, error: fetchError } = usePet(petId);
@@ -25,17 +24,23 @@ export default function EditPetPage() {
 
   // Handle form submission
   const handleSubmit = (updatedPet: Pet) => {
-    setError(null);
     updatePet(updatedPet, {
       onSuccess: () => {
-        setSuccess(true);
+        toast({
+          title: 'Pet Updated',
+          description: "The pet's details have been successfully updated.",
+        });
         setTimeout(() => {
           router.push(`/pets/${petId}`);
         }, 1500);
       },
       onError: (error: Error | unknown) => {
         const errorMessage = error instanceof Error ? error.message : 'Failed to update pet. Please try again.';
-        setError(errorMessage);
+        toast({
+          variant: 'destructive',
+          title: 'Update Failed',
+          description: errorMessage,
+        });
       }
     });
   };
@@ -82,22 +87,6 @@ export default function EditPetPage() {
       </div>
       
       <h1 className="text-2xl font-bold mb-6">Edit Pet: {pet.name}</h1>
-      
-      {error && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-      
-      {success && (
-        <Alert className="mb-6 bg-green-50 text-green-800 border-green-200">
-          <AlertTitle>Success</AlertTitle>
-          <AlertDescription>
-            Pet updated successfully! Redirecting...
-          </AlertDescription>
-        </Alert>
-      )}
       
       <PetForm 
         pet={pet} 

@@ -11,10 +11,16 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     <>
       {!isLoginPage && (
         <header className="flex justify-end p-4 border-b">
-          <LogoutButton />
+          <div className="container mx-auto px-4">
+            <div className="flex justify-end">
+              <LogoutButton />
+            </div>
+          </div>
         </header>
       )}
-      {children}
+      <main className="content-wrapper">
+        {children}
+      </main>
     </>
   );
 }

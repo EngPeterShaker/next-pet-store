@@ -42,19 +42,4 @@ export const petstoreApi = {
 			sold: pets.filter((p) => p.status === PetStatus.Sold).length,
 		};
 	},
-
-	async uploadImage(
-		id: number,
-		file: File
-	): Promise<{ code: number; type: string; message: string }> {
-		const formData = new FormData();
-		formData.append("file", file);
-
-	const response = await axiosInstance.post(`/pet/${id}/uploadImage`, formData, {
-		headers: {
-			'Content-Type': 'multipart/form-data',
-		},
-	});
-	return response.data;
-	},
 };
