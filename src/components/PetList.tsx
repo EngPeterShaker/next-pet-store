@@ -23,7 +23,11 @@ export default function PetList({
   const [searchQuery, setSearchQuery] = useState(initialName || '');
 
   // Fetch all pets without filtering (server-side)
-  const { data: allPets, isLoading, error } = usePets();
+  const { data: allPets, isLoading, error } = usePets(undefined, {
+    // Add retry and error handling options
+    retry: 2,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
 
   // Filter pets on the client side
   const filteredPets = useMemo(() => {

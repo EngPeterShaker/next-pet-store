@@ -17,9 +17,12 @@ export default function EditPetPage() {
   const { toast } = useToast();
 
 
-  const { data: pet, isLoading, error: fetchError } = usePet(petId);
+  const { data: pet, isLoading, error: fetchError } = usePet(petId, {
+    // Add refetch options
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: false,
+  });
   
- 
   const { mutate: updatePet, isPending: isUpdating } = useUpdatePet();
 
   // Handle form submission

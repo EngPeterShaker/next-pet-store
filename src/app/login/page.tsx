@@ -6,16 +6,20 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoginFormData, RegisterFormData, loginSchema, registerSchema } from '@/lib/validations/auth';
 import { FormInput } from '@/components/ui/form-input';
-import { axiosInstance } from '@/lib/axiosInstance';
-import { LogIn, UserPlus, ArrowLeft } from 'lucide-react';
+import { useLogin, useRegister } from '@/lib/hooks/use-auth';
+import { LogIn, UserPlus, ArrowLeft, Loader2 } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function LoginPage() {
-  const [error, setError] = useState('');
   const [showRegister, setShowRegister] = useState(false);
-  const [registerSuccess, setRegisterSuccess] = useState('');
   const router = useRouter();
   const { setUser } = useUser();
+  const { toast } = useToast();
+
+  // React Query hooks
+  const { mutate: login, isPending: isLoginPending } = useLogin();
+  const { mutate: register, isPending: isRegisterPending } = useRegister();
 
   const {
     register: loginRegister,
@@ -33,61 +37,68 @@ export default function LoginPage() {
     resolver: zodResolver(registerSchema)
   });
 
-  const onLogin = async (data: LoginFormData) => {
-    setError('');
-    try {
-      await axiosInstance.get('/user/login', {
-        params: data
-      });
+  const onLogin = (data: LoginFormData) => {
+    login(data, {
+      onSuccess: (response) => {
+        // Set user in context
+        const mockUser = {
+          username: data.username,
+          firstName: 'peter',
+          lastName: 'shaker',
+          email: 'peter.shaker@example.com'
+        };
+        setUser(mockUser);
 
-      // For demo purposes, set a mock user
-      const mockUser = {
-        username: data.username,
-        firstName: 'peter',
-        lastName: 'shaker',
-        email: 'peter.shaker@example.com'
-      };
-      setUser(mockUser);
+        toast({
+          title: 'Welcome back!',
+          description: `Logged in as ${response.user.username}`,
+        });
 
-      localStorage.setItem('token', 'demo-token');
-      router.push('/');
-    } catch (err: Error | unknown) {
-      const error = err as { response?: { data?: { message?: string } }, message?: string };
-      setError('Login failed: ' + (error.response?.data?.message || error.message));
-    }
+        router.push('/');
+      },
+      onError: (error) => {
+        toast({
+          variant: 'destructive',
+          title: 'Login failed',
+          description: error.message || 'Invalid credentials',
+        });
+      }
+    });
   };
 
-  const onRegister = async (data: RegisterFormData) => {
-    setError('');
-    setRegisterSuccess('');
-    try {
-      const payload = {
-        id: 0,
-        ...data,
-        userStatus: 0,
-      };
-      await axiosInstance.post('/user', payload);
+  const onRegister = (data: RegisterFormData) => {
+    const payload = {
+      ...data,
+      email: data.email || undefined,
+    };
 
-      // Store user data in context
-      const userData = {
-        username: data.username,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email
-      };
-      setUser(userData);
-      localStorage.setItem('token', 'demo-token');
+    register(payload, {
+      onSuccess: (response) => {
+        // Store user data in context
+        const userData = {
+          username: data.username,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email
+        };
+        setUser(userData);
 
-      setRegisterSuccess('Account created! Logging you in...');
-      
-      // Redirect to home page after a short delay
-      setTimeout(() => {
+        toast({
+          title: 'Account created!',
+          description: 'Welcome to LovePets!',
+        });
+        
+        // Redirect to home page
         router.push('/');
-      }, 1000);
-    } catch (err: Error | unknown) {
-      const error = err as { response?: { data?: { message?: string } }, message?: string };
-      setError('Registration failed: ' + (error.response?.data?.message || error.message));
-    }
+      },
+      onError: (error) => {
+        toast({
+          variant: 'destructive',
+          title: 'Registration failed',
+          description: error.message || 'Could not create account',
+        });
+      }
+    });
   };
 
   return (
@@ -97,11 +108,6 @@ export default function LoginPage() {
           {showRegister ? 'Create Account' : 'Welcome to LovePets'}
         </h1>
 
-        {registerSuccess && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-            {registerSuccess}
-          </div>
-        )}
 
         {showRegister ? (
           <form onSubmit={handleRegisterSubmit(onRegister)} className="space-y-4">
@@ -143,10 +149,20 @@ export default function LoginPage() {
             />
             <button
               type="submit"
-              className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center"
+              disabled={isRegisterPending}
+              className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <UserPlus className="mr-2 h-4 w-4" />
-              Create Account
+              {isRegisterPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating Account...
+                </>
+              ) : (
+                <>
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Create Account
+                </>
+              )}
             </button>
             <button
               type="button"
@@ -173,10 +189,20 @@ export default function LoginPage() {
             />
             <button
               type="submit"
-              className="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center"
+              disabled={isLoginPending}
+              className="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <LogIn className="mr-2 h-4 w-4" />
-              Log in
+              {isLoginPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Logging in...
+                </>
+              ) : (
+                <>
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Log in
+                </>
+              )}
             </button>
             <p className="text-center text-sm text-gray-500">
               New to LovePets?{" "}
@@ -191,11 +217,6 @@ export default function LoginPage() {
           </form>
         )}
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-4">
-            {error}
-          </div>
-        )}
       </div>
     </div>
   );

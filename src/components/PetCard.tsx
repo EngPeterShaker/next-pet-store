@@ -9,16 +9,21 @@ import { Pet } from '@/types/pet';
 import { Badge } from '@/components/ui/badge';
 import { getPetStatusColor, getPetMainImage } from '@/lib/utils/pet';
 import { sanitizeText } from '@/lib/utils/sanitize';
+import { usePrefetchPet } from '@/lib/hooks/use-pets';
 
 export function PetCard({ pet, priority = false }: { pet: Pet; priority?: boolean }) {
   const [isLoading, setIsLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
+  const prefetchPet = usePrefetchPet();
 
   const mainImage = useMemo(() => getPetMainImage(pet.photoUrls), [pet.photoUrls]);
   const showPlaceholder = !mainImage || imageError;
 
   return (
-    <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
+    <div 
+      className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow h-full flex flex-col"
+      onMouseEnter={() => prefetchPet(pet.id)}
+    >
       <div className="h-48 bg-gray-100 relative flex-shrink-0">
         {isLoading && !showPlaceholder && (
           <Skeleton className="absolute inset-0 w-full h-full" />

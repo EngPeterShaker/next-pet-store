@@ -26,6 +26,10 @@ export const petstoreApi = {
 		return response.data;
 	},
 
+	async deletePet(id: number): Promise<void> {
+		await axiosInstance.delete(`/pet/${id}`);
+	},
+
 	async getPetStatusCounts(): Promise<{
 		available: number;
 		pending: number;
