@@ -8,12 +8,14 @@ import { LoginFormData, RegisterFormData, loginSchema, registerSchema } from '@/
 import { FormInput } from '@/components/ui/form-input';
 import { axiosInstance } from '@/lib/axiosInstance';
 import { LogIn, UserPlus, ArrowLeft } from 'lucide-react';
+import { useUser } from '@/contexts/UserContext';
 
 export default function LoginPage() {
   const [error, setError] = useState('');
   const [showRegister, setShowRegister] = useState(false);
   const [registerSuccess, setRegisterSuccess] = useState('');
   const router = useRouter();
+  const { setUser } = useUser();
 
   const {
     register: loginRegister,
@@ -26,8 +28,7 @@ export default function LoginPage() {
   const {
     register: registerRegister,
     handleSubmit: handleRegisterSubmit,
-    formState: { errors: registerErrors },
-    reset: resetRegisterForm
+    formState: { errors: registerErrors }
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema)
   });
@@ -38,6 +39,16 @@ export default function LoginPage() {
       await axiosInstance.get('/user/login', {
         params: data
       });
+
+      // For demo purposes, set a mock user
+      const mockUser = {
+        username: data.username,
+        firstName: 'peter',
+        lastName: 'shaker',
+        email: 'peter.shaker@example.com'
+      };
+      setUser(mockUser);
+
       localStorage.setItem('token', 'demo-token');
       router.push('/');
     } catch (err: Error | unknown) {
@@ -56,9 +67,23 @@ export default function LoginPage() {
         userStatus: 0,
       };
       await axiosInstance.post('/user', payload);
-      setRegisterSuccess('Account created! You can now log in.');
-      setShowRegister(false);
-      resetRegisterForm();
+
+      // Store user data in context
+      const userData = {
+        username: data.username,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email
+      };
+      setUser(userData);
+      localStorage.setItem('token', 'demo-token');
+
+      setRegisterSuccess('Account created! Logging you in...');
+      
+      // Redirect to home page after a short delay
+      setTimeout(() => {
+        router.push('/');
+      }, 1000);
     } catch (err: Error | unknown) {
       const error = err as { response?: { data?: { message?: string } }, message?: string };
       setError('Registration failed: ' + (error.response?.data?.message || error.message));
@@ -146,23 +171,23 @@ export default function LoginPage() {
               registration={loginRegister('password')}
               error={loginErrors.password?.message}
             />
-              <button
-                type="submit"
-                className="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center"
+            <button
+              type="submit"
+              className="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center"
             >
-                <LogIn className="mr-2 h-4 w-4" />
+              <LogIn className="mr-2 h-4 w-4" />
               Log in
             </button>
-              <p className="text-center text-sm text-gray-500">
-                New to LovePets?{" "}
-                <button
-                  onClick={() => setShowRegister(true)}
-                  className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  <UserPlus className="mr-1 h-4 w-4" />
-                  <span>Create Account</span>
-                </button>
-              </p>
+            <p className="text-center text-sm text-gray-500">
+              New to LovePets?{" "}
+              <button
+                onClick={() => setShowRegister(true)}
+                className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
+              >
+                <UserPlus className="mr-1 h-4 w-4" />
+                <span>Create Account</span>
+              </button>
+            </p>
           </form>
         )}
 

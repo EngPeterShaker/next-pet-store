@@ -2,10 +2,11 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Icons } from '@/components/ui/icons'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 
 export default function HomePage() {
   return (
-    <div className="container relative px-8 lg:px-12 mx-auto ">
+    <div className="container relative flex flex-col items-center px-8 lg:px-12 mx-auto">
       <div className="flex max-w-[980px] flex-col items-center gap-4 text-center">
         <h1 className="text-3xl font-bold leading-tight tracking-tighter sm:text-3xl md:text-5xl lg:text-6xl">
           Welcome to PetStore
@@ -30,59 +31,51 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="grid gap-4 mt-16 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <Icons.paw className="h-8 w-8 mb-2" />
-            <CardTitle>Browse Pets</CardTitle>
-            <CardDescription>View all pets in our store</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="link" className="px-0" asChild>
-              <Link href="/pets">
+      <div className="grid gap-8 mt-16 md:grid-cols-2 lg:grid-cols-2 justify-center">
+        <Link href="/pets" className="block w-full max-w-md">
+          <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader>
+              <Icons.paw className="h-8 w-8 mb-2" />
+              <CardTitle>Browse Pets</CardTitle>
+              <CardDescription>View all pets in our store</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="ghost" size="lg" className="px-0 pointer-events-none font-semibold">
                 View all pets
-                <Icons.arrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+                <Icons.arrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardHeader>
-            <Icons.search className="h-8 w-8 mb-2" />
-            <CardTitle>Search & Filter</CardTitle>
-            <CardDescription>Find pets by status or name</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/pets?status=available">Available</Link>
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/pets?status=pending">Pending</Link>
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/pets?status=sold">Sold</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <Icons.edit className="h-8 w-8 mb-2" />
-            <CardTitle>Manage Pets</CardTitle>
-            <CardDescription>Update pet details and status</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="link" className="px-0" asChild>
-              <Link href="/pets">
-                Get started
-                <Icons.arrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="w-full max-w-md">
+          <Card className="h-full">
+            <CardHeader>
+              <Icons.search className="h-8 w-8 mb-2" />
+              <CardTitle>Search & Filter</CardTitle>
+              <CardDescription>Find pets by status or name</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/pets?status=available">
+                  <Badge className="px-4 py-2 text-sm bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800 transition-colors cursor-pointer">
+                    Available
+                  </Badge>
+                </Link>
+                <Link href="/pets?status=pending">
+                  <Badge className="px-4 py-2 text-sm bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800 transition-colors cursor-pointer">
+                    Pending
+                  </Badge>
+                </Link>
+                <Link href="/pets?status=sold">
+                  <Badge className="px-4 py-2 text-sm bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800 transition-colors cursor-pointer">
+                    Sold
+                  </Badge>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       <div className="mt-16 text-center text-sm text-muted-foreground">
