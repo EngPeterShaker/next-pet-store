@@ -41,8 +41,18 @@ const PetFilters = ({
           placeholder="Search by name, tag, or category..."
           value={searchQuery || ''}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-8"
+          className="pl-8 pr-8"
         />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => onSearchChange('')}
+            className="absolute right-2 top-2 p-0.5 rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
+            aria-label="Clear search"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       <Select
