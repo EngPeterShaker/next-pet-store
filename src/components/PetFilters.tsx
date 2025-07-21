@@ -18,32 +18,36 @@ import { PetStatus } from '@/types/pet';
 
 const PetFilters = ({
   status,
-  name,
+  searchQuery,
   onStatusChange,
-  onNameChange,
+  onSearchChange,
 }: {
   status?: string;
-  name?: string;
+  searchQuery?: string;
   onStatusChange: (status: PetStatus | undefined) => void;
-  onNameChange: (name: string) => void;
+  onSearchChange: (query: string) => void;
 }) => {
   const { data: counts, isLoading } = usePetStatusCounts();
+  
+  // Calculate total count
+  const totalCount = counts ? 
+    (counts.available || 0) + (counts.pending || 0) + (counts.sold || 0) : 0;
 
   return (
     <div className="flex flex-col md:flex-row gap-4 mb-8">
       <div className="relative max-w-md w-full">
         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search by name..."
-          value={name || ''}
-          onChange={(e) => onNameChange(e.target.value)}
+          placeholder="Search by name, tag, or category..."
+          value={searchQuery || ''}
+          onChange={(e) => onSearchChange(e.target.value)}
           className="pl-8"
         />
       </div>
 
       <Select
-        value={status || ''}
-        onValueChange={(value) => onStatusChange(value as PetStatus | undefined)}
+        value={status || 'all'}
+        onValueChange={(value) => onStatusChange(value === 'all' ? undefined : value as PetStatus)}
       >
         <SelectTrigger className="w-[200px]">
           <div className="flex items-center">
@@ -52,6 +56,18 @@ const PetFilters = ({
           </div>
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value="all">
+            <div className="flex justify-between items-center w-full">
+              <span>All Pets</span>
+              {isLoading ? (
+                <Skeleton className="h-4 w-4" />
+              ) : (
+                <Badge variant="secondary" className="ml-2">
+                  {totalCount}
+                </Badge>
+              )}
+            </div>
+          </SelectItem>
           <SelectItem value={PetStatus.Available}>
             <div className="flex justify-between items-center w-full">
               <span>Available</span>
@@ -93,10 +109,11 @@ const PetFilters = ({
 
       <Button
         onClick={() => {
-          onNameChange('');
+          onSearchChange('');
           onStatusChange(undefined);
         }}
         variant="outline"
+        disabled={!searchQuery && !status}
       >
         <X className="mr-2 h-4 w-4" />
         Clear Filters

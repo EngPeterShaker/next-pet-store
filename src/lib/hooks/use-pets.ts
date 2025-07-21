@@ -3,12 +3,33 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { petstoreApi } from "../api/petstore";
-import { PetListParams, Pet } from "@/types/pet";
+import { PetListParams, Pet, PetStatus } from "@/types/pet";
 
 export function usePets(params?: PetListParams) {
 	return useQuery({
 		queryKey: ["pets", params],
-		queryFn: () => petstoreApi.getPets(params),
+		queryFn: async () => {
+			// If no status is specified, fetch all three statuses in parallel
+			if (!params?.status) {
+				const [available, pending, sold] = await Promise.all([
+					petstoreApi.getPets({ ...params, status: PetStatus.Available }),
+					petstoreApi.getPets({ ...params, status: PetStatus.Pending }),
+					petstoreApi.getPets({ ...params, status: PetStatus.Sold })
+				]);
+				
+				// Concatenate all results and shuffle randomly
+				const allPets = [...available, ...pending, ...sold];
+				// Fisher-Yates shuffle algorithm for random mixing
+				for (let i = allPets.length - 1; i > 0; i--) {
+					const j = Math.floor(Math.random() * (i + 1));
+					[allPets[i], allPets[j]] = [allPets[j], allPets[i]];
+				}
+				return allPets;
+			}
+			
+			// If status is specified, just fetch that status
+			return petstoreApi.getPets(params);
+		},
 	});
 }
 

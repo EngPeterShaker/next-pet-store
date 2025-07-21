@@ -4,8 +4,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Pet, PetStatus } from '@/types/pet';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { validatePetData } from '@/lib/utils/sanitize';
 import Image from 'next/image';
 import { Loader2, Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -71,6 +72,38 @@ export default function PetForm({ pet, onSubmit, isSubmitting = false }: PetForm
       photoUrls: pet.photoUrls || [],
     },
   });
+
+  // Sanitize and validate form data
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      // Only validate if we have all required fields
+      if (value.id !== undefined && value.name && value.status) {
+        const petData: Pet = {
+          id: value.id,
+          name: value.name || '',
+          category: value.category ? {
+            id: value.category.id,
+            name: value.category.name || ''
+          } : undefined,
+          status: value.status,
+          tags: value.tags?.filter((tag): tag is { name: string; id?: number } => 
+            tag !== undefined && tag.name !== undefined && tag.name !== ''
+          ).map(tag => ({
+            id: tag.id,
+            name: tag.name
+          })) || [],
+          photoUrls: value.photoUrls?.filter((url): url is string => 
+            url !== undefined && url !== null && url !== ''
+          ) || []
+        };
+        const isValid = validatePetData(petData);
+        if (!isValid) {
+          console.warn('Form contains potentially malicious data');
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const handleAddPhotoUrl = () => {
     setPhotoUrlError('');

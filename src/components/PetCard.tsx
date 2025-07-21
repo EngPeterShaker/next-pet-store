@@ -8,6 +8,7 @@ import { useState, useMemo } from 'react';
 import { Pet } from '@/types/pet';
 import { Badge } from '@/components/ui/badge';
 import { getPetStatusColor, getPetMainImage } from '@/lib/utils/pet';
+import { sanitizeText } from '@/lib/utils/sanitize';
 
 export function PetCard({ pet, priority = false }: { pet: Pet; priority?: boolean }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -17,8 +18,8 @@ export function PetCard({ pet, priority = false }: { pet: Pet; priority?: boolea
   const showPlaceholder = !mainImage || imageError;
 
   return (
-    <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-      <div className="h-48 bg-gray-100 relative">
+    <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
+      <div className="h-48 bg-gray-100 relative flex-shrink-0">
         {isLoading && !showPlaceholder && (
           <Skeleton className="absolute inset-0 w-full h-full" />
         )}
@@ -62,41 +63,48 @@ export function PetCard({ pet, priority = false }: { pet: Pet; priority?: boolea
       </div>
 
       <div className="p-4 flex flex-col flex-grow">
-        <h3 className="font-semibold text-lg truncate" title={pet.name}>
-          {pet.name}
-        </h3>
-
-        <div className="min-h-[4rem] mb-2">
+        {/* Fixed height header section */}
+        <div className="mb-3">
+          <h3 className="font-semibold text-lg truncate" title={sanitizeText(pet.name)}>
+            {sanitizeText(pet.name)}
+          </h3>
           {pet.category?.name && (
-            <p className="text-sm text-muted-foreground mt-1 truncate" title={pet.category.name}>
-              {pet.category.name}
+            <p className="text-sm text-muted-foreground mt-1 truncate" title={sanitizeText(pet.category.name)}>
+              {sanitizeText(pet.category.name)}
             </p>
-          )}
-
-          {pet.tags && pet.tags.length > 0 && (
-            <div className="flex gap-1 mt-3 flex-wrap">
-              {pet.tags.slice(0, 3).map((tag, index) => (
-                <Badge
-                  key={`${tag.id}-${index}`}
-                  variant="secondary"
-                  className="text-xs"
-                  title={tag.name}
-                >
-                  {tag.name}
-                </Badge>
-              ))}
-              {pet.tags.length > 3 && (
-                <Badge variant="secondary" className="text-xs">
-                  +{pet.tags.length - 3} more
-                </Badge>
-              )}
-            </div>
           )}
         </div>
 
-        <Button asChild className="w-full mt-auto">
-          <Link href={`/pets/${pet.id}`}>View Details</Link>
-        </Button>
+        {/* Flexible middle section with fixed height */}
+        <div className="flex-grow flex flex-col justify-between">
+          {/* Tags section with overflow handling */}
+          <div className="min-h-[2.5rem] max-h-[3.5rem] overflow-hidden">
+            {pet.tags && pet.tags.length > 0 && (
+              <div className="flex gap-1 flex-wrap">
+                {pet.tags.slice(0, 2).map((tag, index) => (
+                  <Badge
+                    key={`${tag.id}-${index}`}
+                    variant="secondary"
+                    className="text-xs truncate max-w-[100px]"
+                    title={sanitizeText(tag.name)}
+                  >
+                    {sanitizeText(tag.name)}
+                  </Badge>
+                ))}
+                {pet.tags.length > 2 && (
+                  <Badge variant="secondary" className="text-xs">
+                    +{pet.tags.length - 2}
+                  </Badge>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Button always at the bottom */}
+          <Button asChild className="w-full mt-3">
+            <Link href={`/pets/${pet.id}`}>View Details</Link>
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -2,11 +2,11 @@
 
 import { usePets } from '@/lib/hooks/use-pets';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { PetListSkeleton } from './PetListSkeleton';
 import { PetCard } from './PetCard';
 import PetFilters from './PetFilters';
-import { PetStatus } from '@/types/pet';
+import { PetStatus, Pet } from '@/types/pet';
 
 export default function PetList({
   initialStatus,
@@ -20,12 +20,41 @@ export default function PetList({
   const searchParams = useSearchParams();
 
   const [status, setStatus] = useState<PetStatus | undefined>(initialStatus as PetStatus | undefined);
-  const [name, setName] = useState(initialName || '');
+  const [searchQuery, setSearchQuery] = useState(initialName || '');
 
-  const { data: pets, isLoading, error } = usePets({
-    status,
-    name: name || undefined
-  });
+  // Fetch all pets without filtering (server-side)
+  const { data: allPets, isLoading, error } = usePets();
+
+  // Filter pets on the client side
+  const filteredPets = useMemo(() => {
+    if (!allPets || !Array.isArray(allPets)) return [];
+    
+    return allPets.filter((pet: Pet) => {
+      // Filter by status
+      if (status && pet.status !== status) return false;
+      
+      // Filter by search query (name, tags, or category)
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        
+        // Check name
+        const nameMatch = pet.name?.toLowerCase().includes(query);
+        
+        // Check tags
+        const tagMatch = pet.tags?.some(tag => 
+          tag.name?.toLowerCase().includes(query)
+        );
+        
+        // Check category/description
+        const categoryMatch = pet.category?.name?.toLowerCase().includes(query);
+        
+        // Return true if any field matches
+        if (!nameMatch && !tagMatch && !categoryMatch) return false;
+      }
+      
+      return true;
+    });
+  }, [allPets, status, searchQuery]);
 
   // Handle filter changes
   useEffect(() => {
@@ -34,19 +63,19 @@ export default function PetList({
     if (status) params.set('status', status);
     else params.delete('status');
 
-    if (name) params.set('name', name);
+    if (searchQuery) params.set('name', searchQuery);
     else params.delete('name');
 
     router.push(`${pathname}?${params.toString()}`);
-  }, [status, name, pathname, router, searchParams]);
+  }, [status, searchQuery, pathname, router, searchParams]);
 
   return (
     <div className="space-y-6">
       <PetFilters
         status={status}
-        name={name}
+        searchQuery={searchQuery}
         onStatusChange={setStatus}
-        onNameChange={setName}
+        onSearchChange={setSearchQuery}
       />
 
       {isLoading && <PetListSkeleton />}
@@ -57,15 +86,17 @@ export default function PetList({
         </div>
       )}
 
-      {Array.isArray(pets) && pets.length > 0 ? (
+      {!isLoading && filteredPets.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {pets.map((pet, index) => (
+          {filteredPets.map((pet, index) => (
             <PetCard key={`${pet.id}-${index}`} pet={pet} priority={index === 0} />
           ))}
         </div>
-      ) : (
-        <div className="text-gray-500 p-4">No pets available</div>
-      )}
+      ) : !isLoading ? (
+        <div className="text-gray-500 p-4">
+          {searchQuery || status ? 'No pets found matching your filters' : 'No pets available'}
+        </div>
+      ) : null}
     </div>
   );
 }
