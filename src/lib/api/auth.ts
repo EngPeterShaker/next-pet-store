@@ -1,5 +1,5 @@
 // src/lib/api/auth.ts
-import { api } from './axios';
+import { axiosInstance } from '@/lib/axiosInstance';
 
 export interface LoginCredentials {
   username: string;
@@ -24,7 +24,7 @@ export const authApi = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     // Since the Petstore API doesn't have real auth, we'll simulate it
     // In a real app, this would be an actual API call
-    const response = await api.get('/user/login', {
+    await axiosInstance.get('/user/login', {
       params: credentials
     });
     
@@ -41,7 +41,7 @@ export const authApi = {
   // Register new user
   register: async (data: RegisterData): Promise<AuthResponse> => {
     // Since the Petstore API doesn't have real registration, we'll simulate it
-    const response = await api.post('/user', {
+    await axiosInstance.post('/user', {
       username: data.username,
       password: data.password,
       email: data.email,
@@ -61,7 +61,7 @@ export const authApi = {
   // Logout user
   logout: async (): Promise<void> => {
     // In a real app, this might invalidate the token on the server
-    await api.get('/user/logout');
+    await axiosInstance.get('/user/logout');
   },
 
   // Get current user

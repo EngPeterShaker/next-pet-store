@@ -64,18 +64,18 @@ export function usePet(
 
 // Hook for creating a new pet with optimistic updates
 export function useCreatePet(
-  options?: UseMutationOptions<Pet, Error, Omit<Pet, 'id'>>
+  options?: UseMutationOptions<Pet, Error, Omit<Pet, 'id'>, { previousPets?: Pet[] }>
 ) {
   const queryClient = useQueryClient();
   
-  return useMutation<Pet, Error, Omit<Pet, 'id'>>({
+  return useMutation<Pet, Error, Omit<Pet, 'id'>, { previousPets?: Pet[] }>({
     mutationFn: petstoreApi.createPet,
     onMutate: async (newPet) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: petKeys.lists() });
       
       // Snapshot the previous value
-      const previousPets = queryClient.getQueryData(petKeys.list());
+      const previousPets = queryClient.getQueryData<Pet[]>(petKeys.list());
       
       // Optimistically update to the new value
       if (previousPets) {
@@ -104,11 +104,11 @@ export function useCreatePet(
 
 // Hook for updating a pet with optimistic updates
 export function useUpdatePet(
-  options?: UseMutationOptions<Pet, Error, Pet>
+  options?: UseMutationOptions<Pet, Error, Pet, { previousPet?: Pet; previousPets?: Pet[] }>
 ) {
   const queryClient = useQueryClient();
   
-  return useMutation<Pet, Error, Pet>({
+  return useMutation<Pet, Error, Pet, { previousPet?: Pet; previousPets?: Pet[] }>({
     mutationFn: petstoreApi.updatePet,
     onMutate: async (updatedPet) => {
       // Cancel any outgoing refetches
@@ -116,8 +116,8 @@ export function useUpdatePet(
       await queryClient.cancelQueries({ queryKey: petKeys.lists() });
       
       // Snapshot the previous values
-      const previousPet = queryClient.getQueryData(petKeys.detail(updatedPet.id));
-      const previousPets = queryClient.getQueryData(petKeys.list());
+      const previousPet = queryClient.getQueryData<Pet>(petKeys.detail(updatedPet.id));
+      const previousPets = queryClient.getQueryData<Pet[]>(petKeys.list());
       
       // Optimistically update to the new value
       queryClient.setQueryData(petKeys.detail(updatedPet.id), updatedPet);
@@ -151,18 +151,18 @@ export function useUpdatePet(
 
 // Hook for deleting a pet
 export function useDeletePet(
-  options?: UseMutationOptions<void, Error, number>
+  options?: UseMutationOptions<void, Error, number, { previousPets?: Pet[] }>
 ) {
   const queryClient = useQueryClient();
   
-  return useMutation<void, Error, number>({
+  return useMutation<void, Error, number, { previousPets?: Pet[] }>({
     mutationFn: petstoreApi.deletePet,
     onMutate: async (petId) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: petKeys.lists() });
       
       // Snapshot the previous value
-      const previousPets = queryClient.getQueryData(petKeys.list());
+      const previousPets = queryClient.getQueryData<Pet[]>(petKeys.list());
       
       // Optimistically remove the pet
       queryClient.setQueriesData<Pet[]>(

@@ -36,11 +36,8 @@ export function useCurrentUser() {
   return useQuery<AuthResponse['user'], Error>({
     queryKey: ['current-user'],
     queryFn: authApi.getCurrentUser,
-    onError: (error) => {
-      console.error('Fetching current user failed:', error);
-    },
     staleTime: Infinity,
-    cacheTime: Infinity,
+    gcTime: Infinity, // gcTime replaces cacheTime in v5
   });
 }
 

@@ -73,7 +73,7 @@ export default function LoginPage() {
     };
 
     register(payload, {
-      onSuccess: (response) => {
+      onSuccess: () => {
         // Store user data in context
         const userData = {
           username: data.username,
